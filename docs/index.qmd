@@ -1,0 +1,98 @@
+---
+title: "Malignant neoplasms of female genital organs C51-C58 in Chile from 2010 to 2023"
+author:
+  - name: "María Elisa Joannon Ovalle"
+    email: "mejoannon@miuandes.cl"
+  - name: "Amaru Simón Agüero Jiménez"
+    email: "aaguero@miaundes.cl"
+    orcid: "0000-0001-7336-1833"
+
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    number-depth: 3
+    html-math-method: katex
+    code-fold: true
+    css: styles.css
+    bibliography: ref.bib
+    csl: apa-numeric-superscript.csl
+---
+# Introduction.
+
+```{css, echo=FALSE}
+caption {
+  caption-side: top;
+  text-align: center;
+}
+```
+
+# Methodology 
+
+## R packages.
+```{r}
+#| message: false
+#| warning: false
+
+install_and_load <- function(package) {
+  if (!require(package, character.only = TRUE)) {
+    utils::install.packages(package)
+    library(package, character.only = TRUE)
+  }
+}
+
+# List of packages to be installed and loaded
+packages <- c("devtools", "renv", "tidyverse", "janitor", "data.table", "flexsurv",
+              "kableExtra", "reticulate", "FactoMineR", "factoextra", "knitr","plotly","censo2017", "ggbreak", "patchwork","latex2exp","msm")
+
+# Apply the function to each package
+invisible(capture.output(sapply(packages, install_and_load)))
+
+opts_chunk$set(
+  warning = FALSE,
+  message = FALSE
+)
+```
+## Data Adminsitration
+```{r, HOSP}
+# Get the list of CSV files in the "data/EGRESOS" folder
+files <- list.files(path = paste0(gsub("docs", "", getwd()), "data/EGRESOS/"), pattern = "\\.csv$", full.names = TRUE)
+
+# Define the columns you need to select, considering potential variations in the column names
+required_columns <- c("SEXO", "GRUPO_EDAD", "ETNIA", 
+                      "GLOSA_PAIS_ORIGEN", "COMUNA_RESIDENCIA", "GLOSA_COMUNA_RESIDENCIA", 
+                      "REGION_RESIDENCIA", "GLOSA_REGION_RESIDENCIA", "PREVISION", "GLOSA_PREVISION", 
+                      "ANO_EGRESO", "DIAG1", "DIAG2", "DIAS_ESTADA", "CONDICION_EGRESO")
+
+# Function to read each file and select the required columns
+read_file <- function(file) {
+  # Read the data, assuming the delimiter is a semicolon (you can change it if necessary)
+  data <- read_delim(file, delim = ";")
+  
+  # Select the necessary columns (handling cases where the column name is slightly different)
+  data_selected <- data %>%
+    select(any_of(required_columns)) 
+  
+  return(data_selected)
+}
+
+# Load all datasets and name them according to the file name (without extension)
+data_list <- lapply(files, read_file)
+
+# Assign names to the list elements using the file names without the extension
+names(data_list) <- tools::file_path_sans_ext(basename(files))
+
+# Combine all datasets into one
+HOSP <- bind_rows(data_list) %>%
+  filter(SEXO != "*")
+
+levels(as.factor(HOSP$GRUPO_EDAD))
+```
+```{r}
+# censo_conectar()
+# censo_descargar()
+# CENSO2017 <- censo_tabla("personas")[,c(1,5,6)]
+# saveRDS(CENSO2017, file = paste0(gsub("docs", "", getwd()), "data/20230825_data_output/CENSO2017.rds"))
+```
+
