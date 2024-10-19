@@ -342,7 +342,7 @@ HOSP_C51_C58_DSR_REG <- HOSP_C51_C58_DSR_REG  %>%
 ```{r}
 #| fig-width: 10
 #| fig-height: 8 
-#| fig-pos: 'H'
+
   ggplot(HOSP_C51_C58_DSR, aes(x = as.factor(ANO_EGRESO), y = DSR_HOSP, color = DIAG1_full , group = DIAG1_full)) +
   geom_line(size = 0.8, alpha = 0.5) +
   geom_text(aes(label = round(DSR_HOSP, 1)), vjust = -0.5, size = 3.5, show.legend = FALSE) + # Añadir etiquetas de valores
@@ -361,7 +361,7 @@ ggsave("fig1.png", dpi = 1200, width = 10, height = 8)
 ```{r}
 #| fig-width: 10
 #| fig-height: 8 
-#| fig-pos: 'H'
+
 HOSP_C51_C58_RATES %>% 
   group_by(GRUPO_EDAD, DIAG1_full) %>% 
   summarise(
@@ -401,7 +401,7 @@ ggsave("fig2.png", dpi = 1200, width = 10, height = 8)
 ```{r}
 #| fig-width: 10
 #| fig-height: 8 
-#| fig-pos: 'H'
+
 # Define the order of the regions from north to south
 region_order <- c(
   "De Arica y Parinacota", 
@@ -463,7 +463,7 @@ ggsave("fig3.png", dpi = 1200, width = 10, height = 8)
 ```{r}
 #| fig-width: 10
 #| fig-height: 16 
-#| fig-pos: 'H'
+
 # Load the regional map of Chile from chilemapas
 chile_regions <- generar_regiones(mapa = chilemapas::mapa_comunas) %>%
   mutate(
