@@ -403,7 +403,7 @@ DSR=\frac{\sum^k_{i=1}N_i\frac{y_i}{n_i}}{\sum^k_{i=1}N_i}
 <span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>HOSP_C5_DSR <span class="ot">&lt;-</span> HOSP_C5_RATES <span class="sc">%&gt;%</span></span>
 <span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ANO_EGRESO) <span class="sc">%&gt;%</span></span>
-<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="st">`</span><span class="at">DSR C51-C58 Hosp. per 100.000</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">sum</span>(DSR_female),</span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="st">`</span><span class="at">DSR C51-C58 Hosp. per 100,000 hospitalized </span><span class="st">`</span> <span class="ot">=</span> <span class="fu">sum</span>(DSR_female),</span>
 <span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>            <span class="at">.groups =</span> <span class="st">'drop'</span>)</span>
 <span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>TABLE1 <span class="ot">&lt;-</span> HOSP <span class="sc">%&gt;%</span> </span>
@@ -421,10 +421,10 @@ DSR=\frac{\sum^k_{i=1}N_i\frac{y_i}{n_i}}{\sum^k_{i=1}N_i}
 <span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a>  ), <span class="at">by =</span> <span class="st">"ANO_EGRESO"</span>) <span class="sc">%&gt;%</span> </span>
 <span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(HOSP_C5_DSR, <span class="at">by =</span> <span class="st">"ANO_EGRESO"</span>) <span class="sc">%&gt;%</span> </span>
 <span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">Year =</span> ANO_EGRESO,</span>
-<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">N of Female Hospitalization</span><span class="st">`</span> <span class="ot">=</span> N) <span class="sc">%&gt;%</span> </span>
-<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(P_DATA <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Grupo_Edad_Agrupado <span class="sc">==</span> <span class="st">"Total"</span>) <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span><span class="dv">2</span>), <span class="at">by =</span> <span class="st">"Year"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="st">`</span><span class="at">N of Female population</span><span class="st">`</span> <span class="ot">=</span> n) <span class="sc">%&gt;%</span> </span>
-<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="dv">1</span>,<span class="dv">5</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>)</span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">N of Female Hospitalization</span><span class="st">`</span> <span class="ot">=</span> N) <span class="co"># %&gt;% </span></span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a>  <span class="co"># left_join(P_DATA %&gt;% filter(Grupo_Edad_Agrupado == "Total") %&gt;% select(-2), by = "Year") %&gt;% </span></span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a>  <span class="co"># rename(`N of Female population` = n) %&gt;% </span></span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a>  <span class="co"># select(1,5,2,3,4)</span></span>
 <span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a><span class="co">#NATIONAL#######################################################################</span></span>
 <span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a>HOSP_C51_C58 <span class="ot">&lt;-</span> HOSP <span class="sc">%&gt;%</span></span>
@@ -623,114 +623,98 @@ DSR=\frac{\sum^k_{i=1}N_i\frac{y_i}{n_i}}{\sum^k_{i=1}N_i}
 <thead>
 <tr class="header">
 <th style="text-align: center;" data-quarto-table-cell-role="th">Year</th>
-<th style="text-align: center;" data-quarto-table-cell-role="th">N of Female population</th>
 <th style="text-align: center;" data-quarto-table-cell-role="th">N of Female Hospitalization</th>
 <th style="text-align: center;" data-quarto-table-cell-role="th">C51-C58 Hosp.</th>
-<th style="text-align: center;" data-quarto-table-cell-role="th">DSR C51-C58 Hosp. per 100.000</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">DSR C51-C58 Hosp. per 100,000 hospitalized</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: center;">2010</td>
-<td style="text-align: center;">8566180</td>
 <td style="text-align: center;">976718</td>
 <td style="text-align: center;">6085</td>
 <td style="text-align: center;">714.0598</td>
 </tr>
 <tr class="even">
 <td style="text-align: center;">2011</td>
-<td style="text-align: center;">8651769</td>
 <td style="text-align: center;">979998</td>
 <td style="text-align: center;">6038</td>
 <td style="text-align: center;">682.8717</td>
 </tr>
 <tr class="odd">
 <td style="text-align: center;">2012</td>
-<td style="text-align: center;">8736586</td>
 <td style="text-align: center;">988036</td>
 <td style="text-align: center;">6261</td>
 <td style="text-align: center;">697.0206</td>
 </tr>
 <tr class="even">
 <td style="text-align: center;">2013</td>
-<td style="text-align: center;">8821764</td>
 <td style="text-align: center;">985179</td>
 <td style="text-align: center;">5825</td>
 <td style="text-align: center;">636.8652</td>
 </tr>
 <tr class="odd">
 <td style="text-align: center;">2014</td>
-<td style="text-align: center;">8911559</td>
 <td style="text-align: center;">971782</td>
 <td style="text-align: center;">5790</td>
 <td style="text-align: center;">645.6631</td>
 </tr>
 <tr class="even">
 <td style="text-align: center;">2015</td>
-<td style="text-align: center;">9004176</td>
 <td style="text-align: center;">978255</td>
 <td style="text-align: center;">6196</td>
 <td style="text-align: center;">679.2777</td>
 </tr>
 <tr class="odd">
 <td style="text-align: center;">2016</td>
-<td style="text-align: center;">9111944</td>
 <td style="text-align: center;">959062</td>
 <td style="text-align: center;">6661</td>
 <td style="text-align: center;">718.6209</td>
 </tr>
 <tr class="even">
 <td style="text-align: center;">2017</td>
-<td style="text-align: center;">9254199</td>
 <td style="text-align: center;">952439</td>
 <td style="text-align: center;">6292</td>
 <td style="text-align: center;">678.8213</td>
 </tr>
 <tr class="odd">
 <td style="text-align: center;">2018</td>
-<td style="text-align: center;">9420150</td>
 <td style="text-align: center;">959745</td>
 <td style="text-align: center;">6436</td>
 <td style="text-align: center;">676.0402</td>
 </tr>
 <tr class="even">
 <td style="text-align: center;">2019</td>
-<td style="text-align: center;">9589082</td>
 <td style="text-align: center;">950375</td>
 <td style="text-align: center;">5998</td>
 <td style="text-align: center;">630.9440</td>
 </tr>
 <tr class="odd">
 <td style="text-align: center;">2020</td>
-<td style="text-align: center;">9720358</td>
 <td style="text-align: center;">751497</td>
 <td style="text-align: center;">5084</td>
 <td style="text-align: center;">677.3523</td>
 </tr>
 <tr class="even">
 <td style="text-align: center;">2021</td>
-<td style="text-align: center;">9818163</td>
 <td style="text-align: center;">820159</td>
 <td style="text-align: center;">5568</td>
 <td style="text-align: center;">631.0354</td>
 </tr>
 <tr class="odd">
 <td style="text-align: center;">2022</td>
-<td style="text-align: center;">9874202</td>
 <td style="text-align: center;">906127</td>
 <td style="text-align: center;">6217</td>
 <td style="text-align: center;">653.5218</td>
 </tr>
 <tr class="even">
 <td style="text-align: center;">2023</td>
-<td style="text-align: center;">9887616</td>
 <td style="text-align: center;">854914</td>
 <td style="text-align: center;">6309</td>
 <td style="text-align: center;">691.1576</td>
 </tr>
 <tr class="odd">
 <td style="text-align: center;">Total</td>
-<td style="text-align: center;"></td>
 <td style="text-align: center;">13034286</td>
 <td style="text-align: center;">84760</td>
 <td style="text-align: center;">671.1320</td>
@@ -748,7 +732,7 @@ DSR=\frac{\sum^k_{i=1}N_i\frac{y_i}{n_i}}{\sum^k_{i=1}N_i}
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">size =</span> <span class="fl">0.8</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">round</span>(DSR_HOSP, <span class="dv">1</span>)), <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.5</span>, <span class="at">size =</span> <span class="fl">3.5</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> <span class="co"># Añadir etiquetas de valores</span></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Year"</span>, </span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Standardized rate of malignant neoplasm hospitalizations per 100,000"</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Standardized rate of malignant neoplasm hospitalizations per 100,000 hospitalized"</span>,</span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">color =</span> <span class="st">"Malignant neoplasm"</span>) <span class="sc">+</span></span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(</span>
@@ -806,7 +790,7 @@ DSR=\frac{\sum^k_{i=1}N_i\frac{y_i}{n_i}}{\sum^k_{i=1}N_i}
 <span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">+</span> </span>
 <span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
 <span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age Group"</span>, </span>
-<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Standardized rate of malignant neoplasm hospitalizations per 100,000"</span>,</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Standardized rate of malignant neoplasm hospitalizations per 100,000 hospitalized"</span>,</span>
 <span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Malignant neoplasm"</span>,</span>
 <span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">shape =</span> <span class="st">"Malignant neoplasm"</span></span>
 <span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
@@ -881,7 +865,7 @@ DSR=\frac{\sum^k_{i=1}N_i\frac{y_i}{n_i}}{\sum^k_{i=1}N_i}
 <span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">+</span> </span>
 <span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
 <span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Region"</span>, </span>
-<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Standardized rate of malignant neoplasm hospitalizations per 100,000"</span>,</span>
+<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Standardized rate of malignant neoplasm hospitalizations per 100,000 hospitalized"</span>,</span>
 <span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Malignant neoplasm"</span>,</span>
 <span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">shape =</span> <span class="st">"Malignant neoplasm"</span></span>
 <span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
@@ -949,7 +933,7 @@ DSR=\frac{\sum^k_{i=1}N_i\frac{y_i}{n_i}}{\sum^k_{i=1}N_i}
 <span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>                <span class="at">y =</span> <span class="fu">st_coordinates</span>(centroid)[, <span class="dv">2</span>]), </span>
 <span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a>            <span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">"purple4"</span>, <span class="at">hjust =</span> <span class="dv">1</span>) <span class="sc">+</span>  <span class="co"># Align the labels to the right of the line (hjust=1)</span></span>
 <span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">"D"</span>, <span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">name =</span> <span class="st">"Standardized rate of malignant neoplasm</span><span class="sc">\n</span><span class="st">hospitalizations per 100,000"</span>) <span class="sc">+</span>  <span class="co"># Use transparent plasma color</span></span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">"D"</span>, <span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">name =</span> <span class="st">"Standardized rate of malignant neoplasm</span><span class="sc">\n</span><span class="st">hospitalizations per 100,000 hospitalized"</span>) <span class="sc">+</span>  <span class="co"># Use transparent plasma color</span></span>
 <span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="cn">NULL</span>) <span class="sc">+</span>  <span class="co"># Remove x and y axis labels</span></span>
 <span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a>  </span>

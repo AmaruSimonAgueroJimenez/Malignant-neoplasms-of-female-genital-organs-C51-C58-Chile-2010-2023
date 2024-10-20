@@ -269,7 +269,7 @@ HOSP_C5_RATES <- HOSP_C5  %>%
 
 HOSP_C5_DSR <- HOSP_C5_RATES %>%
   group_by(ANO_EGRESO) %>%
-  summarise(`DSR C51-C58 Hosp. per 100.000` = sum(DSR_female),
+  summarise(`DSR C51-C58 Hosp. per 100,000 hospitalized ` = sum(DSR_female),
             .groups = 'drop')
 
 TABLE1 <- HOSP %>% 
@@ -287,10 +287,10 @@ TABLE1 <- HOSP %>%
   ), by = "ANO_EGRESO") %>% 
   left_join(HOSP_C5_DSR, by = "ANO_EGRESO") %>% 
   rename(Year = ANO_EGRESO,
-         `N of Female Hospitalization` = N) %>% 
-  left_join(P_DATA %>% filter(Grupo_Edad_Agrupado == "Total") %>% select(-2), by = "Year") %>% 
-  rename(`N of Female population` = n) %>% 
-  select(1,5,2,3,4)
+         `N of Female Hospitalization` = N) # %>% 
+  # left_join(P_DATA %>% filter(Grupo_Edad_Agrupado == "Total") %>% select(-2), by = "Year") %>% 
+  # rename(`N of Female population` = n) %>% 
+  # select(1,5,2,3,4)
 
 #NATIONAL#######################################################################
 HOSP_C51_C58 <- HOSP %>%
@@ -488,7 +488,7 @@ TABLE1 %>%
   geom_line(size = 0.8, alpha = 0.5) +
   geom_text(aes(label = round(DSR_HOSP, 1)), vjust = -0.5, size = 3.5, show.legend = FALSE) + # Añadir etiquetas de valores
   labs(x = "Year", 
-       y = "Standardized rate of malignant neoplasm hospitalizations per 100,000",
+       y = "Standardized rate of malignant neoplasm hospitalizations per 100,000 hospitalized",
        color = "Malignant neoplasm") +
   theme_minimal() +
   scale_color_manual(values = c(
@@ -540,7 +540,7 @@ HOSP_C51_C58_RATES %>%
   )) + 
   labs(
     x = "Age Group", 
-    y = "Standardized rate of malignant neoplasm hospitalizations per 100,000",
+    y = "Standardized rate of malignant neoplasm hospitalizations per 100,000 hospitalized",
     color = "Malignant neoplasm",
     shape = "Malignant neoplasm"
   ) +
@@ -611,7 +611,7 @@ HOSP_C51_C58_DSR_REG %>%
   )) + 
   labs(
     x = "Region", 
-    y = "Standardized rate of malignant neoplasm hospitalizations per 100,000",
+    y = "Standardized rate of malignant neoplasm hospitalizations per 100,000 hospitalized",
     color = "Malignant neoplasm",
     shape = "Malignant neoplasm"
   ) +
@@ -675,7 +675,7 @@ HOSP_C5_DSR_REG %>%
                 y = st_coordinates(centroid)[, 2]), 
             size = 3, color = "purple4", hjust = 1) +  # Align the labels to the right of the line (hjust=1)
   
-  scale_fill_viridis_c(option = "D", alpha = 0.8, name = "Standardized rate of malignant neoplasm\nhospitalizations per 100,000") +  # Use transparent plasma color
+  scale_fill_viridis_c(option = "D", alpha = 0.8, name = "Standardized rate of malignant neoplasm\nhospitalizations per 100,000 hospitalized") +  # Use transparent plasma color
   
   labs(x = NULL, y = NULL) +  # Remove x and y axis labels
   
