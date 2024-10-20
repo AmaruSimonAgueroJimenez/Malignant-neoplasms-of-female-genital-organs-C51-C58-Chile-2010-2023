@@ -6,21 +6,17 @@ author:
   - name: "Amaru Simón Agüero Jiménez"
     email: "aaguero@miaundes.cl"
     orcid: "0000-0001-7336-1833"
-
+date: "08/11/2024"
 format:
   html:
     toc: true
     toc-depth: 3
     number-sections: true
     number-depth: 3
-    html-math-method: katex
     code-fold: true
-    css: styles.css
     bibliography: ref.bib
     csl: apa-numeric-superscript.csl
 ---
-
-# Introduction.
 
 ```{css, echo=FALSE}
 caption {
@@ -29,9 +25,24 @@ caption {
 }
 ```
 
-# Methodology 
+# Introduction
 
-## R packages.
+Vaginal cancer, vulvar cancer, cervical cancer, and cancer of the uterine corpus are pathologies encompassed within the term malignant neoplasms of the female genital organs (MNFGO) [@jaime_prat_6bc3aaaa]. MNFGO represent a significant health concern worldwide. It is important to note that incidence and mortality rates for these pathologies vary according to factors such as geographic location, demographic changes, and screening practices, among others [@giuseppe_angelico_5fab5ec5]. Consequently, certain regions have experienced a decrease in the incidence rate, associated with improved effectiveness of screening strategies, while other more underserved areas have seen an increase in incidence and mortality [@kathleen_a__cronin_b6d0b484].
+
+Regarding MNFGOs in Chile, no evidence was found for vaginal cancer, vulvar cancer, and cancer of the uterine corpus. However, cervical cancer accounted for 6.6% of the total cancers diagnosed in 2018. Additionally, age-standardized incidence and mortality rates of 12.2 and 5 per 100,000 women, respectively, were estimated [@jorge_bra_es_5f2e00fb].
+
+In this context, research on the incidence of hospitalizations for malignant neoplasms of female genital organs in Chilean women is essential for obtaining information that will not only contribute to scientific knowledge but also aid in improving the quality of life of Chilean women. Furthermore, such research will help raise awareness of the impact of these diseases on society, promoting the need for more effective public health interventions.
+
+## Aim
+
+Assess the incidence of hospitalizations due to malignant neoplasms of female genital organs in Chilean women between the years 2010 and 2023.
+
+# Methodology
+
+This corresponds to a quantitative design, historical retrospective cohort based on the analysis of secondary, national, anonymized data from hospital records between the years 2010 and 2023. These open data on hospital discharges are available in the Department of Health Statistics and Information of the Ministry of Health of Chile, accessible via the following [link](https://deis.minsal.cl/#datosabiertos). Descriptive statistics were used to estimate the standardized rates and rate ratios of hospitalizations for malignant neoplasms of female genital organs (ICD-10 codes C51-C58) in Chile between the years 2010 and 2023. These hospital rates will be evaluated according to sociodemographic variables and their temporal evolution between the years 2010 and 2023.
+
+## R packages
+
 ```{r}
 #| message: false
 #| warning: false
@@ -44,7 +55,7 @@ install_and_load <- function(package) {
 }
 
 # List of packages to be installed and loaded
-packages <- c("devtools", "renv", "tidyverse", "janitor", "data.table", "flexsurv",
+packages <- c("devtools", "renv", "tidyverse", "janitor", "data.table", "flexsurv","readxl",
               "kableExtra", "reticulate", "FactoMineR", "factoextra", "knitr","plotly","censo2017", "ggbreak", "patchwork","latex2exp","chilemapas")
 
 # Apply the function to each package
@@ -57,15 +68,16 @@ opts_chunk$set(
 rm(list = ls())
 ```
 
-## Data Adminstration
+## Data Administration
+
 ```{r, HOSP}
+
 # Define the path for the HOSP.rds file
 output_file <- paste0(gsub("docs", "", getwd()), "data/data_output/HOSP.rds")
 
 # Check if the file already exists
 if (!file.exists(output_file)) {
   # If the file doesn't exist, execute the code
-  
   # Get the list of CSV files in the "data/EGRESOS" folder
   files <- list.files(path = paste0(gsub("docs", "", getwd()), "data/EGRESOS/"), pattern = "\\.csv$", full.names = TRUE)
 
@@ -119,6 +131,42 @@ HOSP <- HOSP %>%
 
 ```
 
+```{r}
+P_DATA <- read_excel(paste0(gsub("docs", "", getwd()), "/data/TOTAL/P_Data_Extract_From_World_Development_Indicators.xlsx"), 
+    col_types = c("skip", "skip", "text", 
+        "text", "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric")) %>%
+  filter(grepl("FE.5Y$", `Series Code`) | grepl("POP.TOTL.FE.IN$", `Series Code`))  %>%
+  pivot_longer(cols = starts_with("20"),
+               names_to = "Year",  
+               values_to = "Population") %>% 
+  complete(`Series Code`, Year) %>%
+  select(-1) %>% 
+  pivot_wider(names_from = `Series Name`, 
+              values_from = Population) %>%
+  mutate(across(c(-Year,-`Population, female`), ~ . * `Population, female`/100)) %>%
+  pivot_longer(cols = -Year,
+               names_to = "GRUPO_EDAD",
+               values_to = "n") %>%
+  mutate(Grupo_Edad_Agrupado = case_when(
+    grepl("00-04|05-09", GRUPO_EDAD) ~ "0 - 9",
+    grepl("10-14|15-19", GRUPO_EDAD) ~ "10 - 19",
+    grepl("20-24|25-29", GRUPO_EDAD) ~ "20 - 29",
+    grepl("30-34|35-39", GRUPO_EDAD) ~ "30 - 39",
+    grepl("40-44|45-49", GRUPO_EDAD) ~ "40 - 49",
+    grepl("50-54|55-59", GRUPO_EDAD) ~ "50 - 59",
+    grepl("60-64|65-69", GRUPO_EDAD) ~ "60 - 69",
+    grepl("70-74|75-79", GRUPO_EDAD) ~ "70 - 79",
+    grepl("80", GRUPO_EDAD) ~ "80 +",
+    TRUE ~ "Total"  # This is included as a safeguard in case there are unexpected values
+  )) %>%
+  group_by(Year, Grupo_Edad_Agrupado) %>%  # Group by Year and the new age group
+  summarise(n = sum(n, na.rm = TRUE)) %>% 
+  mutate(Year = gsub(" \\[.*\\]", "", Year))  # Remove unwanted characters from the Year column
+```
 
 ```{r}
 # Define the path for the CENSO2017.rds file
@@ -127,7 +175,7 @@ output_file_censo <- paste0(gsub("docs", "", getwd()), "data/data_output/CENSO20
 # Check if the file already exists
 if (!file.exists(output_file_censo)) {
   # If the file doesn't exist, download, process, and save the data
-  
+
   # Connect and download census data
   censo_conectar()
   censo_descargar()
@@ -159,11 +207,91 @@ STDPOPULATION <- CENSO2017 %>%
 
 ```
 
-## Hospitalization Rates of  Malignant neoplasms of female genital organs C51-C58 ICD chapter standardized by age group.
+## Hospitalization Rates of Malignant neoplasms of female genital organs C51-C58 ICD chapter standardized by age group.
 
-### Direct standardization rates (DSR) and standardized rates ratio (SRR).
+### Direct standardization rates (DSR).
+
+For the purpose of calculating the hospitalization rate for each C51-C58 ICD code, the direct standardization by age group (stratum) method was employed [@chiang1984life] [@https://doi.org/10.1002/sim.4780100317]. The total population of Chilean females by year (2010-2023) is obtained from World Bank Open Data. [@worldbank_population_data]. This method utilizes a standard population from the 2017 Chilean Census as a reference [@censo2017]. The formula used to calculate DSR is as follows:
+
+```{=tex}
+\begin{align*}
+
+DSR=\frac{\sum^k_{i=1}N_i\frac{y_i}{n_i}}{\sum^k_{i=1}N_i}
+
+\end{align*}
+```
+where
+
+$N_i$ is the reference population size for the *i*th stratum.
+
+$y_i$ is the number of events observed in population in the *i*th stratum.
+
+$n_i$ is the person-time for the *i*th stratum of the study population.
 
 ```{r}
+#YEAR###########################################################################
+HOSP_C5 <- bind_rows(HOSP_C5 <- HOSP %>%
+  filter(grepl("^C5[1-8]", DIAG1)) %>%
+  group_by(ANO_EGRESO, GRUPO_EDAD) %>%
+  summarise(n = n(), .groups = 'drop') %>%
+  mutate(across(everything(), ~na_if(., NA) %>% replace_na(0))) %>%
+  mutate(ANO_EGRESO = as.character(ANO_EGRESO)), 
+  HOSP_C5_TOTAL <- HOSP %>%
+  filter(grepl("^C5[1-8]", DIAG1)) %>%
+  group_by(GRUPO_EDAD) %>%
+  summarise(n = n(), .groups = 'drop')  %>%
+  mutate(across(everything(), ~na_if(., NA) %>% replace_na(0))) %>%
+  mutate(ANO_EGRESO = "Total"))
+
+TOTALS_HOSP_C5 <- bind_rows(TOTALS_HOSP_C51_C58_REG_TOTAL <- HOSP %>%
+  filter(SEXO == "MUJER") %>% 
+  group_by(GRUPO_EDAD) %>%
+  summarise(
+    total_MUJER = n()
+  ) %>%
+  mutate(ANO_EGRESO = "Total"), 
+  TOTALS_HOSP_C5<- HOSP %>%
+  filter(SEXO == "MUJER") %>% 
+  group_by(GRUPO_EDAD, ANO_EGRESO) %>%
+  summarise(
+    total_MUJER = n()
+  ))
+
+HOSP_C5_RATES <- HOSP_C5  %>%
+  left_join(TOTALS_HOSP_C5, by = c("GRUPO_EDAD","ANO_EGRESO")) %>%
+  left_join(STDPOPULATION[,c(1,3)], by = "GRUPO_EDAD") %>% 
+   mutate(
+    rates = (n / total_MUJER),
+  ) %>%
+  mutate(
+    DSR_female = MUJER_STD*rates
+  )
+
+HOSP_C5_DSR <- HOSP_C5_RATES %>%
+  group_by(ANO_EGRESO) %>%
+  summarise(`DSR C51-C58 Hosp. per 100.000` = sum(DSR_female),
+            .groups = 'drop')
+
+TABLE1 <- HOSP %>% 
+  filter(SEXO == "MUJER") %>% 
+  group_by(ANO_EGRESO) %>% 
+  summarise(N = n()) %>% 
+  bind_rows(
+    summarise(., ANO_EGRESO = "Total", N = sum(N))
+  ) %>% left_join(HOSP %>%
+  filter(grepl("^C5[1-8]", DIAG1)) %>% 
+  group_by(ANO_EGRESO) %>% 
+  summarise(`C51-C58 Hosp.` = n()) %>% 
+  bind_rows(
+    summarise(., ANO_EGRESO = "Total", `C51-C58 Hosp.` = sum(`C51-C58 Hosp.`))
+  ), by = "ANO_EGRESO") %>% 
+  left_join(HOSP_C5_DSR, by = "ANO_EGRESO") %>% 
+  rename(Year = ANO_EGRESO,
+         `N of Female Hospitalization` = N) %>% 
+  left_join(P_DATA %>% filter(Grupo_Edad_Agrupado == "Total") %>% select(-2), by = "Year") %>% 
+  rename(`N of Female population` = n) %>% 
+  select(1,5,2,3,4)
+
 #NATIONAL#######################################################################
 HOSP_C51_C58 <- HOSP %>%
   filter(grepl("^C5[1-8]", DIAG1)) %>%
@@ -338,7 +466,20 @@ HOSP_C51_C58_DSR_REG <- HOSP_C51_C58_DSR_REG  %>%
   mutate(DIAG1_full = recode(DIAG1, !!!icd10_mapping))
 
 ```
+
 # Results
+
+```{r}
+TABLE1 %>%
+  mutate(across(everything(), ~ ifelse(is.na(.), "", .))) %>% 
+  kable(
+    caption = "Table 1",      # Add a caption if desired
+    format = "html",                # Use "html" or "latex" for better styling control
+    align = "c"                     # Optional: Center-align columns
+  ) %>%
+  kable_styling()        # Continue adding for each column you want to make bold
+```
+
 ```{r}
 #| fig-width: 10
 #| fig-height: 8 
@@ -347,20 +488,28 @@ HOSP_C51_C58_DSR_REG <- HOSP_C51_C58_DSR_REG  %>%
   geom_line(size = 0.8, alpha = 0.5) +
   geom_text(aes(label = round(DSR_HOSP, 1)), vjust = -0.5, size = 3.5, show.legend = FALSE) + # Añadir etiquetas de valores
   labs(x = "Year", 
-       y = "Standardized rate of malignant neoplasm hospitalizations per 100,000 hospitalized women",
+       y = "Standardized rate of malignant neoplasm hospitalizations per 100,000",
        color = "Malignant neoplasm") +
   theme_minimal() +
+  scale_color_manual(values = c(
+    "Cervix uteri" = "red",   
+    "Corpus uteri" = "orange",   
+    "Others and unspecified female genital organs" = "green",  
+    "Ovary" = "blue",           
+    "Placenta" = "purple",        
+    "Uterus, part unspecified" = "cyan",  
+    "Vagina" = "pink",         
+    "Vulva" = "brown"
+  )) +
   theme(
-    plot.title = element_text(hjust = 0.5, size = 16),
     axis.text.x = element_text(angle = 45, hjust = 1),
     legend.position = "top"
   )
 ggsave("fig1.png", dpi = 1200, width = 10, height = 8)
 
 ```
+
 ```{r}
-#| fig-width: 10
-#| fig-height: 8 
 
 HOSP_C51_C58_RATES %>% 
   group_by(GRUPO_EDAD, DIAG1_full) %>% 
@@ -368,36 +517,45 @@ HOSP_C51_C58_RATES %>%
     DSR_female = sum(DSR_female)
   ) %>% 
   ggplot(aes(x = GRUPO_EDAD, y = DSR_female, shape = DIAG1_full, color = DIAG1_full)) +
-  geom_point(size = 4, alpha = 0.6) +  # Enlarged points with transparency
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  geom_point(size = 4, alpha = 0.6) +  
+  scale_shape_manual(values = c(
+    "Cervix uteri" = 16,   
+    "Corpus uteri" = 17,   
+    "Others and unspecified female genital organs" = 15,  
+    "Ovary" = 3,           
+    "Placenta" = 5,        
+    "Uterus, part unspecified" = 8,  
+    "Vagina" = 18,         
+    "Vulva" = 7            
+  )) + 
+  scale_color_manual(values = c(
+    "Cervix uteri" = "red",   
+    "Corpus uteri" = "orange",   
+    "Others and unspecified female genital organs" = "green",  
+    "Ovary" = "blue",           
+    "Placenta" = "purple",        
+    "Uterus, part unspecified" = "cyan",  
+    "Vagina" = "pink",         
+    "Vulva" = "brown"
+  )) + 
   labs(
     x = "Age Group", 
-    y = "Standardized rate of malignant neoplasm hospitalizations per 100,000 hospitalized women",
+    y = "Standardized rate of malignant neoplasm hospitalizations per 100,000",
     color = "Malignant neoplasm",
     shape = "Malignant neoplasm"
   ) +
   theme_minimal() +
   theme(
-    plot.title = element_text(hjust = 0.5, size = 16),
     axis.text.x = element_text(angle = 45, hjust = 1),
     legend.position = "top"
   ) +  
   scale_x_discrete(limits = levels(HOSP_C51_C58_RATES$GRUPO_EDAD)) +
-  scale_y_continuous(breaks = seq(0, 1500, by = 100)) +# Reverse order of age groups
-  coord_flip() +  # Flip the x and y axes
-  scale_shape_manual(values = c(
-    "Cervix uteri" = 16,   # Circle
-    "Corpus uteri" = 17,   # Triangle up
-    "Other and unspecified female genital organs" = 15,  # Square
-    "Ovary" = 3,           # Plus
-    "Placenta" = 5,        # Cross
-    "Uterus, part unspecified" = 8,  # Star
-    "Vagina" = 18,         # Diamond
-    "Vulva" = 7            # Triangle down
-  ))
+  scale_y_continuous(breaks = seq(0, 1500, by = 100)) +
+  coord_flip()
 
 ggsave("fig2.png", dpi = 1200, width = 10, height = 8)
 ```
+
 ```{r}
 #| fig-width: 10
 #| fig-height: 8 
@@ -430,11 +588,30 @@ HOSP_C51_C58_DSR_REG <- HOSP_C51_C58_DSR_REG %>%
 HOSP_C51_C58_DSR_REG %>% 
   filter(ANO_EGRESO == "Total") %>% 
   ggplot(aes(x = GLOSA_REGION_RESIDENCIA, y = DSR_HOSP, shape = DIAG1_full, color = DIAG1_full)) +
-  geom_point(size = 4, alpha = 0.6) +  # Enlarged points with transparency
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  geom_point(size = 4, alpha = 0.6) +  
+  scale_shape_manual(values = c(
+    "Cervix uteri" = 16,   # Circle
+    "Corpus uteri" = 17,   # Triangle up
+    "Others and unspecified female genital organs" = 15,  # Square
+    "Ovary" = 3,           # Plus
+    "Placenta" = 5,        # Cross
+    "Uterus, part unspecified" = 8,  # Star
+    "Vagina" = 18,         # Diamond
+    "Vulva" = 7            # Triangle down
+  )) +  
+  scale_color_manual(values = c(
+    "Cervix uteri" = "red",   
+    "Corpus uteri" = "orange",   
+    "Others and unspecified female genital organs" = "green",  
+    "Ovary" = "blue",           
+    "Placenta" = "purple",        
+    "Uterus, part unspecified" = "cyan",  
+    "Vagina" = "pink",         
+    "Vulva" = "brown"
+  )) + 
   labs(
     x = "Region", 
-    y = "Standardized rate of malignant neoplasm hospitalizations per 100,000 hospitalized women",
+    y = "Standardized rate of malignant neoplasm hospitalizations per 100,000",
     color = "Malignant neoplasm",
     shape = "Malignant neoplasm"
   ) +
@@ -444,22 +621,13 @@ HOSP_C51_C58_DSR_REG %>%
     axis.text.x = element_text(angle = 45, hjust = 1),
     legend.position = "top"
   ) +  
-  scale_x_discrete(limits = rev(region_order)) +  # Use the custom region order
-  scale_y_continuous(breaks = seq(0, 1500, by = 100)) +
-  coord_flip() +  # Flip the x and y axes
-  scale_shape_manual(values = c(
-    "Cervix uteri" = 16,   # Circle
-    "Corpus uteri" = 17,   # Triangle up
-    "Other and unspecified female genital organs" = 15,  # Square
-    "Ovary" = 3,           # Plus
-    "Placenta" = 5,        # Cross
-    "Uterus, part unspecified" = 8,  # Star
-    "Vagina" = 18,         # Diamond
-    "Vulva" = 7            # Triangle down
-  ))
+  scale_x_discrete(limits = rev(region_order)) +  
+  scale_y_continuous(breaks = seq(0, 500, by = 50)) +
+  coord_flip()
 
 ggsave("fig3.png", dpi = 1200, width = 10, height = 8)
 ```
+
 ```{r}
 #| fig-width: 10
 #| fig-height: 16 
@@ -523,4 +691,3 @@ HOSP_C5_DSR_REG %>%
 
 ggsave("fig4.png", dpi = 1200, width = 10, height = 16)
 ```
-
